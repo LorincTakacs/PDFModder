@@ -1,17 +1,13 @@
 ﻿using PdfSharp.Pdf.IO;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using UglyToad.PdfPig;
 using UglyToad.PdfPig.Content;
 using PdfSharp.Pdf;
-using PdfSharp.Pdf.Annotations;
 using PdfSharp.Drawing;
-using static System.Windows.Forms.LinkLabel;
-using UglyToad.PdfPig.Core;
+
 
 namespace PDFAddLinksDynamically
 {
@@ -59,15 +55,15 @@ namespace PDFAddLinksDynamically
             return textByPage;
         }
 
-        public static async void AddHyperLinks(string inputPath, string searchText, Dictionary<int, List<string>> textByPage)
-        {            
+        public static void AddHyperLinks(string inputPath, string searchText, Dictionary<int, List<string>> textByPage)
+        {
             PdfSharp.Pdf.PdfDocument document = PdfReader.Open(inputPath, PdfDocumentOpenMode.Modify);
             
             for (int i = 0; i < document.PageCount; i++)
             {
                 PdfPage page = document.Pages[i];
 
-                var content = textByPage[i + 1];                
+                var content = textByPage[i + 1];
                 
                 XGraphics gfx = XGraphics.FromPdfPage(page);
                 
@@ -80,7 +76,9 @@ namespace PDFAddLinksDynamically
 
                         XFont fontNormal = new XFont("Arial", 16);
                         //TODO: I should calc the size of the box dynamically to the size of the text
-                        var xrect = new XRect(boundingBox.Left+50/*X*/, (((int)page.Height - boundingBox.TopLeft.Y) - 25 + boundingBox.Height*0.5)/*Y*/, 80, 30); //TODO: x-y should be dynamic for the button
+                        int width = 80;
+                        int height = 30;
+                        var xrect = new XRect(boundingBox.Left+width/2 /*X*/, (((int)page.Height - boundingBox.TopLeft.Y) - height/2 + boundingBox.Height*0.5)/*Y*/, width, height);
                         
                         gfx.DrawRectangle(XBrushes.Transparent, xrect); //The box itself, like a div
                         
@@ -90,7 +88,7 @@ namespace PDFAddLinksDynamically
 
                         var pdfrect = new PdfSharp.Pdf.PdfRectangle(rect);
                         
-                        page.AddWebLink(pdfrect, URL + "/" + searchText);
+                        page.AddWebLink(pdfrect, URL + searchText);
                     }
                 }
 

@@ -19,7 +19,7 @@ namespace PDFAddLinksDynamically
             InitializeComponent();
             ui = new Ui(this);
 
-            Globals.URL = "https://shop.sonepar.hu/catalog/hu-hu/search/";
+            Globals.URL = "https://www.youtube.com/results?search_query=";
             defaultUrlText.Text = Globals.URL;
 
             ui.SetSysMessage("Program használatra készen áll");
