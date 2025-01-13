@@ -22,7 +22,7 @@ namespace PDFAddLinksDynamically
         
         public void SetSysMessage(string msg)
         {
-            Form.sysConsole.Text += ((string.IsNullOrEmpty(Form.sysConsole.Text)) ? msg : " " + msg) + " - " + DateTime.Now + "\n";
+            Form.sysConsole.Text += msg + " - " + DateTime.Now + "\n";
         }
     }
 }

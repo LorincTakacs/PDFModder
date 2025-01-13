@@ -25,13 +25,13 @@ namespace PDFAddLinksDynamically
             ui.SetSysMessage("Program használatra készen áll");
         }
 
-        private void startBtn_Click(object sender, EventArgs e) => Main();
+        private async void startBtn_Click(object sender, EventArgs e) => await Main();
 
         private async Task Main()
         {
             try
             {
-                string file = Globals.ChooseFile(); //await Task.Run(() => Globals.ChooseFile());
+                string file = Globals.ChooseFile();
 
                 if (string.IsNullOrEmpty(file))
                 {
@@ -39,15 +39,15 @@ namespace PDFAddLinksDynamically
                 }
 
                 var textByPage = await Task.Run(() => Globals.ExtractText(file));
+                
 
-                List<string> searchTextTestArr = new List<string>{"G11294", "G07013" };//TODO: This is just atest string im lookin for so far
+                List<string> searchTextTestArr = new List<string>{ "G11294", "G07013" };//TODO: This is just atest string im lookin for so far                                
 
-                foreach (string searchTextTest in searchTextTestArr)
-                {
-                    await Task.Run(() => Globals.AddHyperLinks(file, searchTextTest, textByPage));
-                }                
+                Globals.COUNTER = 0; //TODO: this is lame, temporary
 
-                ui.SetSysMessage("Pacek!");
+                await Task.Run(() => Globals.AddHyperLinks(file, searchTextTestArr, textByPage));                
+
+                ui.SetSysMessage($"Pacek! Lefutások száma: {Globals.COUNTER}");
 
             }
             catch (Exception ex)

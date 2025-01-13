@@ -7,6 +7,8 @@ using System.Windows.Forms;
 using UglyToad.PdfPig.Content;
 using PdfSharp.Pdf;
 using PdfSharp.Drawing;
+using System.IO;
+using System.Diagnostics;
 
 
 namespace PDFAddLinksDynamically
@@ -15,7 +17,7 @@ namespace PDFAddLinksDynamically
     {
         public static string URL { get; set; }
         public static string SELECTEDFILE { get; set; }
-
+        public static int COUNTER { get; set; }
 
         public static string ChooseFile()
         {
@@ -55,8 +57,8 @@ namespace PDFAddLinksDynamically
             return textByPage;
         }
 
-        public static void AddHyperLinks(string inputPath, string searchText, Dictionary<int, List<string>> textByPage)
-        {
+        public static void AddHyperLinks(string inputPath, List<string> searchTextList, Dictionary<int, List<string>> textByPage)
+        {            
             PdfSharp.Pdf.PdfDocument document = PdfReader.Open(inputPath, PdfDocumentOpenMode.Modify);
             
             for (int i = 0; i < document.PageCount; i++)
@@ -69,32 +71,38 @@ namespace PDFAddLinksDynamically
                 
                 for (int j = 0; j < content.Count; j++)
                 {
-                    
-                    if (content[j].Contains(searchText))
+                    foreach (var searchText in searchTextList)
                     {
-                        UglyToad.PdfPig.Core.PdfRectangle boundingBox = (UglyToad.PdfPig.Core.PdfRectangle) GetCoordinates(inputPath, searchText);
+                        if (content[j].Contains(searchText))
+                        {
+                            UglyToad.PdfPig.Core.PdfRectangle boundingBox = (UglyToad.PdfPig.Core.PdfRectangle)GetCoordinates(inputPath, searchText);
 
-                        XFont fontNormal = new XFont("Arial", 16);
-                        //TODO: I should calc the size of the box dynamically to the size of the text
-                        int width = 80;
-                        int height = 30;
-                        var xrect = new XRect(boundingBox.Left+width/2 /*X*/, (((int)page.Height - boundingBox.TopLeft.Y) - height/2 + boundingBox.Height*0.5)/*Y*/, width, height);
-                        
-                        gfx.DrawRectangle(XBrushes.Transparent, xrect); //The box itself, like a div
-                        
-                        gfx.DrawString("Irány a Shop!", fontNormal, XBrushes.Black, xrect, XStringFormats.Center); //The btn text
-                        
-                        var rect = gfx.Transformer.WorldToDefaultPage(xrect);
+                            XFont fontNormal = new XFont("Arial", 16);
 
-                        var pdfrect = new PdfSharp.Pdf.PdfRectangle(rect);
-                        
-                        page.AddWebLink(pdfrect, URL + searchText);
-                    }
+                            //TODO: I should calc the size of the box dynamically to the size of the text
+                            int width = 80;
+                            int height = 30;
+                            double x = boundingBox.Left + width / 2;
+                            double y = ((page.Height.Point - boundingBox.TopLeft.Y) - height / 2 + boundingBox.Height * 0.5);
+                            var xrect = new XRect(x, y, width, height);
+
+                            gfx.DrawRectangle(XBrushes.Transparent, xrect); //The box itself, like a div
+
+                            gfx.DrawString("Irány a Shop!", fontNormal, XBrushes.Black, xrect, XStringFormats.Center); //The btn text
+
+                            var rect = gfx.Transformer.WorldToDefaultPage(xrect);
+
+                            var pdfrect = new PdfSharp.Pdf.PdfRectangle(rect);
+
+                            page.AddWebLink(pdfrect, URL + searchText);
+                        }
+                    }                    
                 }
-
             }
 
-            document.Save(inputPath); //TODO: optimize, cuz this its gonna save as many times as it generates a button.
+            //TODO: optimize, cuz this its gonna save as many times as it generates a button.
+            COUNTER++;
+            document.Save(inputPath);
         }
 
         public static UglyToad.PdfPig.Core.PdfRectangle? GetCoordinates(string inputPath, string searchText)
